@@ -1,0 +1,95 @@
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background: #f8f9fa;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .add-btn {
+            background: #198754;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .add-btn:hover {
+            background: #157347;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #f2f2f2;
+        }
+
+        .product-image {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .status-active {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-inactive {
+            color: red;
+            font-weight: bold;
+        }
+
+        .action-link {
+            font-size: 18px;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        .view {
+            color: #0d6efd;
+        }
+
+        .edit {
+            color: #f0ad00;
+        }
+
+        .delete {
+            color: #dc3545;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 0 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+   
