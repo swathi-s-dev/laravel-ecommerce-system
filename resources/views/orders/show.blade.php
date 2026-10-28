@@ -1,4 +1,4 @@
-
+{{-- 
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,7 +65,7 @@
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="info-card">
-                <h6>Order ID</h6>
+                <h6>Order ID ---------</h6>
                 <h4>#{{ $order->id }}</h4>
             </div>
         </div>
@@ -106,7 +106,7 @@
         </span>
     </div>
 
-    <h4 class="mb-3">Ordered Products</h4>
+    <h4 class="mb-3">Ordered Products ---</h4>
 
     <div class="table-responsive">
         <table class="table table-bordered table-striped details-table">
@@ -151,4 +151,4 @@
 </div>
 
 </body>
-</html>
+</html> --}}

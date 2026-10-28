@@ -8,11 +8,37 @@ use Illuminate\Validation\Rule;
 class PaymentController extends Controller
 {
     // List all payments
+    // List all payments with order total and balance
     public function index()
     {
         $payments = Payment::with('order.customer')
             ->latest()
             ->get();
+
+        // Calculate total completed payments for each order
+        $paidAmounts = Payment::selectRaw(
+            'order_id, SUM(amount) as total_paid'
+        )
+            ->where('status', 'Completed')
+            ->groupBy('order_id')
+            ->pluck('total_paid', 'order_id');
+
+        foreach ($payments as $payment) {
+            $orderTotal = (float) (
+                $payment->order->total_amount ?? 0
+            );
+
+            $totalPaid = (float) (
+                $paidAmounts[$payment->order_id] ?? 0
+            );
+
+            $payment->order_total = $orderTotal;
+            $payment->total_paid = $totalPaid;
+            $payment->balance_amount = max(
+                0,
+                $orderTotal - $totalPaid
+            );
+        }
 
         return response()->json([
             'success' => true,
@@ -20,17 +46,40 @@ class PaymentController extends Controller
         ]);
     }
 
-    // Load create form data
+// Load create form data
     public function create()
     {
-        $orders = Order::with('customer')->latest()->get();
+        $orders = Order::with('customer')
+            ->latest()
+            ->get();
+
+        $paidAmounts = Payment::selectRaw(
+            'order_id, SUM(amount) as total_paid'
+        )
+            ->where('status', 'Completed')
+            ->groupBy('order_id')
+            ->pluck('total_paid', 'order_id');
+
+        foreach ($orders as $order) {
+            $orderTotal = (float) $order->total_amount;
+            $totalPaid = (float) (
+                $paidAmounts[$order->id] ?? 0
+            );
+
+            $order->order_total = $orderTotal;
+            $order->total_paid = $totalPaid;
+            $order->balance_amount = max(
+                0,
+                $orderTotal - $totalPaid
+            );
+        }
 
         return response()->json([
             'success' => true,
             'orders' => $orders
         ]);
     }
-
+   
     // Store payment
     public function store(Request $request)
     {
@@ -58,8 +107,7 @@ class PaymentController extends Controller
             'payment' => $payment
         ], 201);
     }
-
-    // Show one payment
+// Show one payment
     public function show(Payment $payment)
     {
         $payment->load('order.customer');

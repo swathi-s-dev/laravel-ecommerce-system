@@ -1,6 +1,11 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
@@ -8,54 +13,69 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
-Route::get('/dashboard-data', [DashboardController::class, 'index'])
-    ->name('dashboard.data');
-Route::resource('orders', OrderController::class);
-Route::resource('categories',CategoryController::class);
-Route::resource('products', ProductController::class);
-Route::resource('customers', CustomerController::class);
-Route::get('/orders/{order}', [OrderController::class, 'show'])
-    ->name('orders.show');
+// Login routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])
+        ->name('login');
 
+    Route::post('/login', [AuthController::class, 'login'])
+        ->name('login.submit');
+});
 
-// Payments List page
-Route::get('/payments', function () {
-    return view('payments.index');
-})->name('payments.page');
+// Logout
+Route::post('/logout', function (Request $request) {
+    Auth::logout();
 
-// AJAX: Load payments list data
-Route::get('/payments-data', [PaymentController::class, 'index'])
-    ->name('payments.index');
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
-// Display Add Payment form
-Route::get('/payments/create', function () {
-    return view('payments.create');
-})->name('payments.create');
+    return redirect()->route('login');
+})->middleware('auth')->name('logout');
 
-// AJAX: Load orders for dropdown
-Route::get('/payments-create-data', [PaymentController::class, 'create'])
-    ->name('payments.create.data');
+// Protected shop pages
+Route::middleware('auth')->group(function () {
 
-// AJAX: Save payment
-Route::post('/payments', [PaymentController::class, 'store'])
-    ->name('payments.store');
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-// View payment details
-Route::get('/payments/{payment}', [PaymentController::class, 'show'])
-    ->name('payments.show');
+    Route::get('/dashboard-data', [DashboardController::class, 'index'])
+        ->name('dashboard.data');
 
-// Update payment using AJAX
-Route::put('/payments/{payment}', [PaymentController::class, 'update'])
-    ->name('payments.update');
+    Route::resource('orders', OrderController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('products', ProductController::class);
+    Route::resource('customers', CustomerController::class);
 
-Route::get('/payments/{payment}/view', function ($payment) {
-    return view('payments.show', [
-        'paymentId' => $payment
-    ]);
-})->name('payments.view');
-// Delete payment using AJAX
-Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])
-    ->name('payments.destroy');
+    Route::get('/payments', function () {
+        return view('payments.index');
+    })->name('payments.page');
+
+    Route::get('/payments-data', [PaymentController::class, 'index'])
+        ->name('payments.index');
+
+    Route::get('/payments/create', function () {
+        return view('payments.create');
+    })->name('payments.create');
+
+    Route::get('/payments-create-data', [PaymentController::class, 'create'])
+        ->name('payments.create.data');
+
+    Route::post('/payments', [PaymentController::class, 'store'])
+        ->name('payments.store');
+
+    Route::get('/payments/{payment}', [PaymentController::class, 'show'])
+        ->name('payments.show');
+
+    Route::put('/payments/{payment}', [PaymentController::class, 'update'])
+        ->name('payments.update');
+
+    Route::get('/payments/{payment}/view', function ($payment) {
+        return view('payments.show', [
+            'paymentId' => $payment,
+        ]);
+    })->name('payments.view');
+
+    Route::delete('/payments/{payment}', [PaymentController::class, 'destroy'])
+        ->name('payments.destroy');
+});

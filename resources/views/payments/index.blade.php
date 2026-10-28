@@ -1,19 +1,9 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('layouts.app')
 
-    <title>Payments List</title>
+@section('title', 'Payment')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          rel="stylesheet">
-
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+@section('content')
 
     <style>
         body {
@@ -45,9 +35,7 @@
             display: none;
         }
     </style>
-</head>
 
-<body>
 
 <div class="container payment-container">
 
@@ -69,11 +57,12 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
-                <tr>
-                    <th>Payment ID</th>
+               <tr>
                     <th>Order ID</th>
                     <th>Customer</th>
-                    <th>Amount</th>
+                    <th>Order Total</th>
+                    <th>Amount Paid</th>
+                    <th>Balance Amount</th>
                     <th>Payment Method</th>
                     <th>Status</th>
                     <th>Payment Date</th>
@@ -83,13 +72,14 @@
 
             <tbody id="paymentTable">
                 <tr>
-                    <td colspan="8">Loading payments...</td>
+                    <td colspan="9">Loading payments...</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
+@push('scripts')
 <script>
 $(document).ready(function () {
 
@@ -128,31 +118,54 @@ $(document).ready(function () {
                             Refunded: 'secondary'
                         }[payment.status] || 'secondary';
 
-                        rows += `
-                            <tr id="paymentRow${payment.id}">
-                                <td>${payment.id}</td>
-                                <td>${payment.order_id}</td>
-                                <td>${escapeHtml(customer)}</td>
-                                <td>₹${Number(payment.amount).toFixed(2)}</td>
-                                <td>${escapeHtml(payment.payment_method)}</td>
-                                <td>
-                                    <span class="badge bg-${statusClass}">
-                                        ${escapeHtml(payment.status)}
-                                    </span>
-                                </td>
-                                <td>${date}</td>
-                                <td>
-                                    <button class="btn btn-info btn-sm viewPayment"
-                                            data-id="${payment.id}">
-                                        <i class="bi bi-eye"></i> View
-                                    </button>
+                      rows += `
+                        <tr id="paymentRow${payment.id}">
+                           
+                           <td>${payment.order_id}</td>
+                            <td>${escapeHtml(customer)}</td>
 
-                                    <button class="btn btn-danger btn-sm deletePayment"
-                                            data-id="${payment.id}">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </td>
-                            </tr>`;
+                            <td>₹${Number(payment.order_total).toLocaleString(
+                                'en-IN', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            )}</td>
+
+                            <td>₹${Number(payment.amount).toLocaleString(
+                                'en-IN', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                }
+                            )}</td>
+
+                            <td class="text-danger fw-bold">
+                                ₹${Number(payment.balance_amount).toLocaleString(
+                                    'en-IN', {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2
+                                    }
+                                )}
+                            </td>
+
+                            <td>${escapeHtml(payment.payment_method)}</td>
+
+                            <td>
+                                <span class="badge bg-${statusClass}">
+                                    ${escapeHtml(payment.status)}
+                                </span>
+                            </td>
+
+                            <td>${date}</td>
+
+                            <td>
+                                
+
+                                <button class="btn btn-danger btn-sm deletePayment"
+                                        data-id="${payment.id}">
+                                    <i class="bi bi-trash"></i> 
+                                </button>
+                            </td>
+                        </tr>`;
                     });
                 }
 
@@ -231,7 +244,8 @@ $(document).ready(function () {
     // Initial AJAX load
     loadPayments();
 });
-</script>
 
-</body>
-</html>
+</script>
+@endpush
+
+@endsection

@@ -1,155 +1,142 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Orders List</title>
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 30px;
-                background: #f8f9fa;
-            }
+@extends('layouts.app')
 
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
+@section('title', 'Order')
 
-            .header h1 {
-                margin: 0;
-            }
+@section('content')
 
-            .add-btn {
-                background: #198754;
-                color: white;
-                padding: 10px 15px;
-                text-decoration: none;
-                border-radius: 5px;
-            }
+<style>
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
 
-            .add-btn:hover {
-                background: #157347;
-            }
+    .header h1 {
+        margin: 0;
+    }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                background: white;
-            }
+    .add-btn {
+        background: #198754;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
 
-            th,
-            td {
-                padding: 12px;
-                border: 1px solid #ddd;
-                text-align: center;
-            }
+    .add-btn:hover {
+        background: #157347;
+    }
 
-            th {
-                background: #f2f2f2;
-            }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
 
-            .product-image {
-                width: 70px;
-                height: 70px;
-                object-fit: cover;
-                border-radius: 5px;
-            }
+    th,
+    td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
 
-            .status-active {
-                color: green;
-                font-weight: bold;
-            }
+    th {
+        background: #f2f2f2;
+    }
 
-            .status-inactive {
-                color: red;
-                font-weight: bold;
-            }
+    .product-image {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
 
-            .action-link {
-                font-size: 18px;
-                text-decoration: none;
-                margin: 0 5px;
-            }
+    .status-active {
+        color: green;
+        font-weight: bold;
+    }
 
-            .edit {
-                color: blue;
-            }
+    .status-inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .action-link {
+        font-size: 18px;
+        text-decoration: none;
+        margin: 0 5px;
+    }
+
+    
 
 
-            .delete {
-                color: #dc3545;
-                border: none;
-                background: none;
-                cursor: pointer;
-                font-size: 18px;
-                margin: 0 5px;
-            }
-
-        
-                .success-toast {
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translate(-50%);
-                    background: #198754;
-                    color: white;
-                    padding: 14px 25px;
-                    border-radius: 6px;
-
-                    display: none;
-                    align-items: center;
-                    gap: 10px;
-
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                    z-index: 9999;
-                }
-
-                .success-toast i {
-                    font-size: 20px;
-                }
-                .loader {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                z-index: 10000;
-            }
-
-            .spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid #ddd;
-                border-top: 4px solid #198754;
-                border-radius: 50%;
-                animation: spin 0.8s linear infinite;
-            }
-
-            @keyframes spin {
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-        </style>
-    </head>
-<body>
+    .delete {
+        color: #dc3545;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        margin: 0 5px;
+    }
 
 
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translate(-50%);
+            background: #198754;
+            color: white;
+            padding: 14px 25px;
+            border-radius: 6px;
+
+            display: none;
+            align-items: center;
+            gap: 10px;
+
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+        }
+
+        .success-toast i {
+            font-size: 20px;
+        }
+        .loader {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10000;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ddd;
+        border-top: 4px solid #198754;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+  
     <div class="header">
         <h3>Orders List</h3>
         <button type="button" class="add-btn" id="addOrder"><i class="bi bi-person-plus"></i>Add Order</button>
     </div>
-
    <div class="form-container">
         <table>
             <thead>
                 <tr>
                     <th>Order ID</th>
-                    <th>Order</th>
+                    <th> Customer Name</th>
                     <th>Order Date</th>
                     <th>Total Amount</th>
                     <th>Status</th>
@@ -161,7 +148,7 @@
                 @forelse($orders as $order)
                     <tr id="orderRow{{ $order->id }}">
                         <td>{{ $order->id }}</td>
-                        <td>{{ $order->Order->name ?? 'N/A' }}</td>
+                        <td>{{ $order->customer->name ?? 'N/A' }}</td>
                         <td>{{ $order->order_date }}</td>
                         <td>₹{{ number_format($order->total_amount, 2) }}</td>
                         <td>
@@ -175,8 +162,11 @@
                             </span>
                         </td>
                         <td>
-                            <a href="{{ route('orders.show', $order->id) }}"
-                                class="btn btn-info btn-sm">View</a>
+                            <button type="button"
+                                    class="btn btn-info btn-sm viewOrder"
+                                    data-id="{{ $order->id }}">
+                                <i class="bi bi-eye"></i> 
+                            </button>
                             <button type="button"  class="delete"  title="Delete" onclick="deleteOrder({{ $order->id }})"> <i class="bi bi-trash"></i> </button>
                         </td>
                     </tr>
@@ -187,9 +177,105 @@
                 @endforelse
             </tbody>
         </table>
-        <div id="OrderModal" style="display:none;">
-            <div id="OrderFormContainer"></div>
+        
+      <!-- Create Order Modal -->
+    <div class="modal fade" id="OrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                 
+                <div class="modal-body" id="OrderFormContainer"></div>
+            </div>
         </div>
+    </div>
+      
+    
+    <!-- View Order Modal -->
+    <div class="modal fade" id="viewOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body" id="orderDetailsContent">
+
+                    <!-- Order Information -->
+                    <div class="row g-3 mb-4">
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3">
+                                <label class="text-muted">Order ID</label>
+                                <h5 id="viewOrderId">-</h5>
+
+                                <label class="text-muted">Order Date</label>
+                                <div id="viewOrderDate">-</div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3">
+                                <label class="text-muted">Customer</label>
+                                <h5 id="viewCustomerName">-</h5>
+
+                                <label class="text-muted">Status</label>
+                                <div>
+                                    <span class="badge bg-primary" id="viewOrderStatus">
+                                        -
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Ordered Products -->
+                    <h6 class="mb-3">Ordered Products</h6>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="viewOrderItems">
+                                <tr>
+                                    <td colspan="4" class="text-center">
+                                        Select an order to view details.
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">
+                                        Total Amount
+                                    </th>
+                                    <th class="text-end" id="viewTotalAmount">
+                                        ₹0.00
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     </div>
           <div id="successToast" class="success-toast">
             <i class="bi bi-check-circle-fill"></i>
@@ -199,7 +285,7 @@
             <div class="spinner"></div>
         </div>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+@push('scripts')
 <script>
 
 $(document).ready(function () {
@@ -217,9 +303,7 @@ $(document).ready(function () {
         $('#loader').hide();
     }
 
-    // Add one product row automatically when the page opens
-    addProductRow();
-
+    
     // Add Product button
     $('#addProductRow').on('click', function () {
         addProductRow();
@@ -306,7 +390,7 @@ $(document).ready(function () {
     });
 
     // Create order using AJAX
-    $('#createOrderForm').on('submit', function (e) {
+    $(document).on('submit', '#createOrderForm', function(e) {
         e.preventDefault();
 
         $('#createOrderToast').addClass('d-none');
@@ -346,7 +430,7 @@ $(document).ready(function () {
         }
 
         const button = $('#saveOrderBtn');
-
+        showLoader();
         button.prop('disabled', true).text('Saving...');
 
         $.ajax({
@@ -354,15 +438,20 @@ $(document).ready(function () {
             type: 'POST',
             data: $(this).serialize(),
 
-            success: function (response) {
+           success: function (response) {
                 showToast(
-                    response.message || 'Order created successfully!',
-                    'success'
+                    response.message || 'Order created successfully!'
                 );
 
-                setTimeout(function () {
-                    window.location.href = '/orders';
-                }, 1000);
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('OrderModal')
+                ).hide();
+
+                // Refresh only the order table, not the entire page.
+                $.get("{{ route('orders.index') }}", function (html) {
+                    const newTable = $(html).find('.form-container table');
+                    $('.form-container table').replaceWith(newTable);
+                });
             },
 
             error: function (xhr) {
@@ -394,6 +483,7 @@ $(document).ready(function () {
 
             complete: function () {
                 button.prop('disabled', false).text('Save Order');
+                hideLoader();
             }
         });
     });
@@ -407,63 +497,189 @@ $(document).ready(function () {
         }, 3000);
     }
 
-    // ADD Order 
-    $('#addOrder').click(function () {
+   
+   // VIEW ORDER using AJAX
+
+    $(document).on('click', '.viewOrder', function () {
+
+        const id = $(this).data('id');
+
+        $('#viewOrderId, #viewOrderDate, #viewCustomerName, #viewOrderStatus')
+            .text('-');
+
+        $('#viewTotalAmount').text('₹0.00');
+
+        $('#viewOrderItems').html(`
+            <tr>
+                <td colspan="4" class="text-center">
+                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                    Loading order details...
+                </td>
+            </tr>
+        `);
+
+        bootstrap.Modal.getOrCreateInstance(
+            document.getElementById('viewOrderModal')
+        ).show();
+
+        $.ajax({
+            url: "{{ url('orders') }}/" + id,
+            type: 'GET',
+            dataType: 'json',
+            headers: {
+                'Accept': 'application/json'
+            },
+
+            success: function (response) {
+
+                const order = response.order;
+                const customer = order.customer || {};
+                const items = order.order_items || order.orderItems || [];
+
+                $('#viewOrderId').text('#' + order.id);
+                $('#viewOrderDate').text(order.order_date || 'N/A');
+                $('#viewCustomerName').text(customer.name || 'N/A');
+                $('#viewOrderStatus').text(order.status || 'N/A');
+
+                let rows = '';
+
+            
+
+                items.forEach(function (item) {
+                    const product = item.product || {};
+                    const quantity = Number(item.quantity || 0);
+                    const price = Number(item.price || 0);
+                    const subtotal = Number(
+                        item.subtotal ?? price * quantity
+                    );
+
+                    const row = $('<tr>');
+
+                    $('<td>')
+                        .text(product.name || 'Product unavailable')
+                        .appendTo(row);
+
+                    $('<td>')
+                        .addClass('text-center')
+                        .text(quantity)
+                        .appendTo(row);
+
+                    $('<td>')
+                        .addClass('text-end')
+                        .text('₹' + price.toFixed(2))
+                        .appendTo(row);
+
+                    $('<td>')
+                        .addClass('text-end')
+                        .text('₹' + subtotal.toFixed(2))
+                        .appendTo(row);
+
+                    rows += row.prop('outerHTML');
+                });
+
+                if (items.length === 0) {
+                    rows = `
+                        <tr>
+                            <td colspan="4" class="text-center">
+                                No order items found.
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                $('#viewOrderItems').html(rows);
+                $('#viewTotalAmount').text(
+                    '₹' + Number(order.total_amount || 0).toFixed(2)
+                );
+            },
+
+            error: function (xhr) {
+                console.error(xhr.status, xhr.responseText);
+
+                $('#viewOrderItems').html(`
+                    <tr>
+                        <td colspan="4" class="text-center text-danger">
+                            Unable to load order details.
+                        </td>
+                    </tr>
+                `);
+            }
+        });
+    });
+
+  // ADD ORDER - LOAD FORM USING AJAX
+    $(document).on('click', '#addOrder', function () {
         showLoader();
+
         $.ajax({
             url: "{{ route('orders.create') }}",
             type: "GET",
+
             success: function (response) {
                 $('#OrderFormContainer').html(response);
-                $('#OrderModal').show();
+
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('OrderModal')
+                ).show();
+
+                // Add the first product row after loading the form
+                const template = document.getElementById('productRowTemplate');
+
+                if (template) {
+                    $('#orderItemsBody').empty();
+                    $('#orderItemsBody').append(
+                        template.content.cloneNode(true)
+                    );
+                }
             },
+
             error: function (xhr) {
                 console.log(xhr.responseText);
                 alert('Unable to load Order form.');
             },
+
             complete: function () {
                 hideLoader();
             }
         });
     });
-
     // DELETE Order
 
-    function deleteOrder(id) {
-        if (!confirm('Are you sure you want to delete this Order?')) {
+  
+    window.deleteOrder = function (id) {
+        if (!confirm('Are you sure you want to delete this order?')) {
             return;
         }
+
         $.ajax({
             url: "{{ url('orders') }}/" + id,
             type: "DELETE",
+
             success: function (response) {
-                $('#Order-' + id).remove();
-                showToast(response.message);
-                if ($('tbody tr[id^="Order-"]').length === 0) {
+                $('#orderRow' + id).remove();
+
+                showToast(response.message || 'Order deleted successfully!');
+
+                if ($('tbody tr[id^="orderRow"]').length === 0) {
                     $('tbody').html(`
-                        <tr id="noorders">
-                            <td colspan="9">
-                                No Order found.
-                            </td>
+                        <tr id="emptyOrderRow">
+                            <td colspan="6">No orders found.</td>
                         </tr>
                     `);
                 }
             },
+
             error: function (xhr) {
-
                 console.log(xhr.responseText);
-
-                alert('Unable to delete Order.');
-
+                alert('Unable to delete order.');
             }
-
         });
-
-    }
+    };
   
 });
 
 </script>
 
-</body>
-</html>
+@endpush
+
+@endsection

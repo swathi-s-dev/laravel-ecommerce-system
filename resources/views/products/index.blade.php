@@ -1,17 +1,11 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Products List</title>
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            background: #f8f9fa;
-        }
+@extends('layouts.app')
 
+@section('title', 'products')
+
+@section('content')
+
+<style>
+    
         .header {
             display: flex;
             justify-content: space-between;
@@ -134,10 +128,8 @@
         transform: rotate(360deg);
     }
 }
-    </style>
-</head>
+</style>
 
-<body>
 
     <div class="header">
 
@@ -178,9 +170,9 @@
                         <td>{{ $product->stock }}</td>
                         <td>
                             @if($product->status)
-                                <span class="status-active">Active</span>
+                                <span class="status-active">Stock In</span>
                             @else
-                                <span class="status-inactive">Inactive</span>
+                                <span class="status-inactive">Stock Out</span>
                             @endif
                         </td>
                         <td>
@@ -205,9 +197,30 @@
 
             </tbody>
         </table>
-        <div id="productModal" style="display:none;">
-            <div id="productFormContainer"></div>
+        <div class="modal fade" id="productModal" tabindex="-1"
+     aria-labelledby="productModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="productModalLabel">
+                    <i class="bi bi-box-seam me-2"></i>
+                    Product Details
+                </h5>
+
+                <button type="button" class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="productFormContainer"></div>
+            </div>
+
         </div>
+    </div>
+</div>
     </div>
         <div id="successToast" class="success-toast">
             <i class="bi bi-check-circle-fill"></i>
@@ -217,6 +230,8 @@
         <div id="loader" class="loader">
             <div class="spinner"></div>
         </div>
+
+@push('scripts')        
 <script>
 
 $(document).ready(function () {
@@ -244,7 +259,14 @@ $(document).ready(function () {
             type: "GET",
             success: function (response) {
                 $('#productFormContainer').html(response);
-                $('#productModal').show();
+
+                $('#productModalLabel').html(
+                    '<i class="bi bi-plus-circle me-2"></i>Add Product'
+                );
+
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('productModal')
+                ).show();
             },
             error: function (xhr) {
                 console.log(xhr.responseText);
@@ -275,7 +297,10 @@ $(document).ready(function () {
             },
             success: function (response) {
                 console.log(response);
-                $('#productModal').hide();
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('productModal')
+                ).hide();
+
                 $('#productFormContainer').html('');
                 $('#noProduct').remove();      
                 let product = response.product;
@@ -393,7 +418,10 @@ $(document).on('submit', '#ProductEditForm', function (e) {
                     : '<span class="status-inactive">Inactive</span>'
             );
 
-            $('#productModal').hide();
+            bootstrap.Modal.getOrCreateInstance(
+                document.getElementById('productModal')
+            ).hide();
+
             $('#productFormContainer').html('');
 
             showToast(response.message);
@@ -435,7 +463,14 @@ $(document).on('submit', '#ProductEditForm', function (e) {
             type: "GET",
             success: function (response) {
                 $('#productFormContainer').html(response);
-                $('#productModal').show();
+
+                $('#productModalLabel').html(
+                    '<i class="bi bi-pencil-square me-2"></i>Edit Product'
+                );
+
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('productModal')
+                ).show();
             },
             error: function (xhr) {
                 console.log(xhr.responseText);
@@ -448,22 +483,12 @@ $(document).on('submit', '#ProductEditForm', function (e) {
 
     });
 
-    $(document).on('click', '#canceleditproduct', function() {
+    $(document).on('click', '#cancelProduct, #canceleditproduct', function () {
+        bootstrap.Modal.getOrCreateInstance(
+            document.getElementById('productModal')
+        ).hide();
 
-        $('#productModal').hide();
         $('#productFormContainer').html('');
-
-    });
-
-    // CANCEL product
-
-    $(document).on('click', '#cancelProduct', function () {
-        
-        $('#productForm')[0].reset();
-        $('.text-danger').text('');
-        $('#productModal').hide();
-        $('#productFormContainer').html('');
-
     });
 
     function showToast(message) {
@@ -519,5 +544,6 @@ $(document).on('submit', '#ProductEditForm', function (e) {
 });    
 
 </script>
-</body>
-</html>
+@endpush
+
+@endsection

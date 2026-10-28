@@ -26,7 +26,10 @@
 .crud-header i {
     margin-right: 6px;
 }
-
+.text-danger {
+    color: #dc3545 !important;
+    font-weight: bold;
+}
 /* Row */
 .row {
     display: flex;
@@ -98,38 +101,40 @@
 }
 
 /* Save */
+/* Save Category - Green */
 .btn-primary {
     min-width: 125px;
     height: 34px;
     padding: 5px 12px;
+    background-color: #198754;
+    color: white;
     border: none;
     border-radius: 17px;
     font-size: 13px;
     cursor: pointer;
 }
 
-.btn-primary i {
-    margin-right: 5px;
+.btn-primary:hover {
+    background-color: #157347;
 }
 
-/* Cancel */
+/* Cancel - Blue */
 .cancel-button {
     min-width: 80px;
     height: 34px;
     padding: 5px 12px;
-    background: white;
-    color: #6c757d;
-    border: 1px solid #6c757d;
+    background-color: #0d6efd;
+    color: white;
+    border: 1px solid #0d6efd;
     border-radius: 17px;
     font-size: 13px;
     cursor: pointer;
 }
 
 .cancel-button:hover {
-    background: #6c757d;
+    background-color: #083c8b;
     color: white;
 }
-
 /* Mobile */
 @media (max-width: 768px) {
 
@@ -162,22 +167,23 @@
             @csrf
             
             <div class="col-md-6 mb-3">
-                <label for="name" class="form-label">Name:
+                <label for="name" class="form-label">Name: <span class="text-danger">*</span>
                     <input type="text"
                         name="name"
                         id="name" placeholder="Enter category name"
                         class="form-control" pattern="[A-Za-z ]+"
-                        title="Name can contain alphabets and spaces only">
+                        title="Name can contain alphabets and spaces only"
+                        oninput="this.value = this.value.replace(/[^A-Za-z ]/g, '')" required>
                 </label>
                        <small class="text-danger" id="nameError"></small>
 
             </div>
             <div class="col-md-6 mb-3">
 
-                <label for="status" class="form-label">Status
+                <label for="status" class="form-label">Status: <span class="text-danger">*</span>
                     <select name="status"
                             id="status"
-                            class="form-select">
+                            class="form-select" required>
 
                         <option value="">Select Status</option>
                         <option value="1">Active</option>
@@ -199,3 +205,4 @@
     </form>
 
 </div>
+                

@@ -14,6 +14,17 @@ A web-based e-commerce management system developed using Laravel, MySQL, Bootstr
 - **Page reload-free CRUD operations using AJAX for adding, editing, and deleting records**
 - Dynamic data updates without refreshing the entire page
 
+Technology	Purpose in your project
+PHP	Backend programming language
+Laravel	Routes, controllers, models, validation and database operations
+MySQL	Stores products, categories, customers, orders and related information
+HTML5	Structures web pages
+CSS3	Styles the application
+Bootstrap 5	Responsive layouts, forms, tables and UI components
+JavaScript	Handles browser-side interactions
+jQuery AJAX	Sends requests and updates data without a full page reload
+Git and GitHub	Tracks code changes and stores your portfolio project
+
 ## Technologies Used
 
 - PHP

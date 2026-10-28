@@ -27,74 +27,98 @@ class OrderController extends Controller
     return view('orders.create', compact('customers', 'products'));
 }
 
-    public function show($id)
-    {
-        $order = \App\Models\Order::with([
-            'customer',
-            'orderItems.product'
-        ])->findOrFail($id);
+   public function show($id)
+{
+    $order = Order::with([
+        'customer',
+        'orderItems.product'
+    ])->findOrFail($id);
 
-        return view('orders.show', compact('order'));
-    }
+    return response()->json([
+        'success' => true,
+        'order' => $order
+    ]);
+}
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'order_date' => 'required|date',
-            'status' => 'required|in:Pending,Processing,Completed,Cancelled',
-            'product_id' => 'required|array|min:1',
-            'product_id.*' => 'required|distinct|exists:products,id',
-            'quantity' => 'required|array|min:1',
-            'quantity.*' => 'required|integer|min:1',
-        ]);
+{
+    $validated = $request->validate([
+        'customer_id' => 'required|exists:customers,id',
+        'order_date' => 'required|date',
+        'status' => 'required|in:Pending,Processing,Completed,Cancelled',
+        'product_id' => 'required|array|min:1',
+        'product_id.*' => 'required|distinct|exists:products,id',
+        'quantity' => 'required|array|min:1',
+        'quantity.*' => 'required|integer|min:1',
+    ]);
 
-        if (count($validated['product_id']) !== count($validated['quantity'])) {
-            return response()->json([
-                'message' => 'Each product must have a quantity.',
-            ], 422);
-        }
+    if (count($validated['product_id']) !== count($validated['quantity'])) {
+        return response()->json([
+            'message' => 'Each product must have a quantity.',
+        ], 422);
+    }
 
-        $order = \Illuminate\Support\Facades\DB::transaction(
-            function () use ($validated) {
-                $total = 0;
-                $items = [];
+    $order = \Illuminate\Support\Facades\DB::transaction(
+        function () use ($validated) {
 
-                foreach ($validated['product_id'] as $index => $productId) {
-                    $product = \App\Models\Product::findOrFail($productId);
-                    $quantity = (int) $validated['quantity'][$index];
-                    $price = (float) $product->price;
-                    $subtotal = round($price * $quantity, 2);
+            $total = 0;
+            $items = [];
 
-                    $total += $subtotal;
+            foreach ($validated['product_id'] as $index => $productId) {
 
-                    $items[] = [
-                        'product_id' => $product->id,
-                        'quantity' => $quantity,
-                        'price' => $price,
-                        'subtotal' => $subtotal,
-                    ];
+                // Get product and lock its stock during this transaction
+                $product = Product::where('id', $productId)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                $quantity = (int) $validated['quantity'][$index];
+
+                // Check available stock
+                if ($product->stock < $quantity) {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        'quantity' => [
+                            "Insufficient stock for {$product->name}. Available stock: {$product->stock}."
+                        ],
+                    ]);
                 }
 
-                $order = \App\Models\Order::create([
-                    'customer_id' => $validated['customer_id'],
-                    'order_date' => $validated['order_date'],
-                    'total_amount' => round($total, 2),
-                    'status' => $validated['status'],
-                ]);
+                $price = (float) $product->price;
+                $subtotal = round($price * $quantity, 2);
 
-                $order->orderItems()->createMany($items);
+                $total += $subtotal;
 
-                return $order;
+                $items[] = [
+                    'product_id' => $product->id,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'subtotal' => $subtotal,
+                ];
+
+                // REDUCE PRODUCT STOCK
+                $product->decrement('stock', $quantity);
             }
-        );
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully!',
-            'order_id' => $order->id,
-        ], 201);
-    }
+            // Create order
+            $order = Order::create([
+                'customer_id' => $validated['customer_id'],
+                'order_date' => $validated['order_date'],
+                'total_amount' => round($total, 2),
+                'status' => $validated['status'],
+            ]);
+
+            // Save ordered products
+            $order->orderItems()->createMany($items);
+
+            return $order;
+        }
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Order created successfully! Product stock updated.',
+        'order_id' => $order->id,
+    ], 201);
+}
 
     public function destroy($id)
     {

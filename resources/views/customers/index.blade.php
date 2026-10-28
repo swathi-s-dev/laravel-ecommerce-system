@@ -1,142 +1,134 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Customer List</title>
-            <meta name="csrf-token" content="{{ csrf_token() }}">
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 30px;
-                background: #f8f9fa;
-            }
+@extends('layouts.app')
 
-            .header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 20px;
-            }
+@section('title', 'Customer')
 
-            .header h1 {
-                margin: 0;
-            }
+@section('content')
 
-            .add-btn {
-                background: #198754;
-                color: white;
-                padding: 10px 15px;
-                text-decoration: none;
-                border-radius: 5px;
-            }
+<style> 
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
 
-            .add-btn:hover {
-                background: #157347;
-            }
+    .header h1 {
+        margin: 0;
+    }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                background: white;
-            }
+    .add-btn {
+        background: #198754;
+        color: white;
+        padding: 10px 15px;
+        text-decoration: none;
+        border-radius: 5px;
+    }
 
-            th,
-            td {
-                padding: 12px;
-                border: 1px solid #ddd;
-                text-align: center;
-            }
+    .add-btn:hover {
+        background: #157347;
+    }
 
-            th {
-                background: #f2f2f2;
-            }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
 
-            .product-image {
-                width: 70px;
-                height: 70px;
-                object-fit: cover;
-                border-radius: 5px;
-            }
+    th,
+    td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: center;
+    }
 
-            .status-active {
-                color: green;
-                font-weight: bold;
-            }
+    th {
+        background: #f2f2f2;
+    }
 
-            .status-inactive {
-                color: red;
-                font-weight: bold;
-            }
+    .product-image {
+        width: 70px;
+        height: 70px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
 
-            .action-link {
-                font-size: 18px;
-                text-decoration: none;
-                margin: 0 5px;
-            }
+    .status-active {
+        color: green;
+        font-weight: bold;
+    }
 
-            .edit {
-                color: blue;
-            }
+    .status-inactive {
+        color: red;
+        font-weight: bold;
+    }
+
+    .action-link {
+        font-size: 18px;
+        text-decoration: none;
+        margin: 0 5px;
+    }
+
+    .edit {
+        color: blue;
+    }
 
 
-            .delete {
-                color: #dc3545;
-                border: none;
-                background: none;
-                cursor: pointer;
-                font-size: 18px;
-                margin: 0 5px;
-            }
+    .delete {
+        color: #dc3545;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 18px;
+        margin: 0 5px;
+    }
 
-        
-                .success-toast {
-                    position: fixed;
-                    top: 20px;
-                    left: 50%;
-                    transform: translate(-50%);
-                    background: #198754;
-                    color: white;
-                    padding: 14px 25px;
-                    border-radius: 6px;
 
-                    display: none;
-                    align-items: center;
-                    gap: 10px;
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translate(-50%);
+            background: #198754;
+            color: white;
+            padding: 14px 25px;
+            border-radius: 6px;
 
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-                    z-index: 9999;
-                }
+            display: none;
+            align-items: center;
+            gap: 10px;
 
-                .success-toast i {
-                    font-size: 20px;
-                }
-                .loader {
-                display: none;
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                z-index: 10000;
-            }
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 9999;
+        }
 
-            .spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid #ddd;
-                border-top: 4px solid #198754;
-                border-radius: 50%;
-                animation: spin 0.8s linear infinite;
-            }
+        .success-toast i {
+            font-size: 20px;
+        }
+        .loader {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10000;
+    }
 
-            @keyframes spin {
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-        </style>
-    </head>
-<body>
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #ddd;
+        border-top: 4px solid #198754;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+  
     <div class="header">
         <h1>Customer List</h1>
         <button type="button" class="add-btn" id="addCustomer"><i class="bi bi-person-plus"></i>Add Customer</button>
@@ -203,8 +195,9 @@
         <div id="loader" class="loader">
             <div class="spinner"></div>
         </div>
-<script>
 
+@push('scripts')
+<script>
 $(document).ready(function () {
 
 // CSRF
@@ -472,5 +465,6 @@ $(document).ready(function () {
 });    
 
 </script>
-</body>
-</html>
+@endpush
+
+@endsection
